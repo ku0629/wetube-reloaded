@@ -1,0 +1,20 @@
+extends base.pug
+
+block content 
+    //- div 
+    //-     video#preview
+    //-     button#startBtn Start recording
+    div 
+        audio(controls)#previewAudio
+        button#startAudioBtn Start recording
+    if errorMessage
+        span=errorMessage
+    form(method="POST" enctype="multipart/form-data")
+        label(for="video") Video File
+        input(type="file" id="video" name="video" accept="video/*" required)
+        input(placeholder="Title",required,type="text",name="title")
+        input(placeholder="Description",required,type="text", name="description")
+        input(placeholder="Hashtags, separated by comma.",required,type="text",name="hashtags")
+        input(type="submit", value="Upload Video")
+block scripts
+    script(src="/static/js/recorder.js")

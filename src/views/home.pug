@@ -1,0 +1,15 @@
+extends base.pug
+include mixins/video.pug
+//- block이 있는 자리로 들어간다. 그리고 extend를 한 파일에서는 무조건 blocks and mixins만이 최상위로 level로 쓰일 수 있다. 
+block content
+    h1 Home! 
+    //- pug's grammer
+    each potato in videos
+        +video(potato)
+    else 
+        li Thers is no video  
+
+        
+
+
+

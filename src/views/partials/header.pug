@@ -1,0 +1,24 @@
+header
+    a(href="/")
+        i.fab.fa-youtube.fa-xl
+    nav 
+        ul
+            li
+                a(href="/search") Search
+            if loggedIn 
+                li
+                    a(href="/videos/upload") Upload
+                li 
+                    a(href=`/users/${loggedInUser._id}`) #{loggedInUser.name}'s profile
+                li 
+                    a(href="/users/edit") Edit-Profile
+                li 
+                    a(href="/users/logout") Logout 
+            else
+                li 
+                    a(href="/join") Join
+                li 
+                    a(href="/login") Login
+                
+                //- title변수의 값을 가지는 h1 
+        
