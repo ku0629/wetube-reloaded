@@ -1,11 +1,17 @@
+import { Body } from "node-fetch";
+import { async } from "regenerator-runtime";
+
 const video = document.querySelector("video");
 const playBtn = document.getElementById("play");
+const playBtnIcon = playBtn.querySelector("i");
 const muteBtn = document.getElementById("mute");
+const muteBtnIcon = muteBtn.querySelector("i");
 const volumeRange = document.getElementById("volume");
 const currentTime = document.getElementById("currentTime");
 const totalTime = document.getElementById("totalTime");
 const timeline = document.getElementById("timeline");
 const fullScreenBtn = document.getElementById("fullScreen");
+const fullScreenBtnIcon = fullScreenBtn.querySelector("i");
 const videoContainer = document.getElementById("videoContainer");
 const videoControls = document.getElementById("videoControls");
 
@@ -22,21 +28,21 @@ const handlePlayClick = (event) => {
   } else {
     video.pause();
   }
-  playBtn.innerText = video.paused ? "Play" : "Pause";
+  playBtnIcon.classList = video.paused
+    ? "fa-solid fa-play"
+    : "fa-solid fa-pause";
 };
-const handlePause = (event) => {
-  playBtn.innerText = "Play";
-};
-const handlePlay = (event) => {
-  playBtn.innerText = "Pause";
-};
+
 const handleMute = (event) => {
+  //muted can be getter and setter
   if (video.muted) {
     video.muted = false;
   } else {
     video.muted = true;
   }
-  muteBtn.innerText = video.muted ? "Unmute" : "Mute";
+  muteBtnIcon.className = video.muted
+    ? "fa-solid fa-volume-xmark"
+    : "fa-solid fa-volume-high";
   volumeRange.value = video.muted ? 0 : volumeValue;
 };
 
@@ -46,7 +52,11 @@ const handleVolumeInput = (event) => {
   } = event;
   if (video.muted) {
     video.muted = false;
-    muteBtn.innerText = "Mute";
+    muteBtnIcon.className = "fa-solid fa-volume-high";
+  }
+  if (value * 10 === 0) {
+    video.muted = true;
+    muteBtnIcon.className = "fa-solid fa-volume-xmark";
   }
   volumeValue = value;
   video.volume = volumeValue;
@@ -75,10 +85,10 @@ const handleFullScreenClick = (event) => {
   const fullscreen = document.fullscreenElement; // fullscreenElement는 fullscreen인 경우 해당 element를 전달 없으면 null
   if (fullscreen) {
     document.exitFullscreen(); //called on the document
-    fullScreenBtn.innerText = "Enter Full Screen";
+    fullScreenBtnIcon.className = "fa-solid fa-expand";
   } else {
     videoContainer.requestFullscreen(); // called on the element div인 이상 아무거나 fullscreen으로 가능하다!
-    fullScreenBtn.innerText = "Exit Full Screen";
+    fullScreenBtnIcon.classList = "fa-solid fa-compress";
   }
 };
 
@@ -107,15 +117,37 @@ const handleMouseMove = (event) => {
   videoControls.classList.add("showing"); //1.움직일때마다 계속 showing을 더한다. 2.그리고 3초뒤에 showing을 제거하는 setTimeout을 부른다.
   controlsMouseMovementTimeout = setTimeout(hideControls, 3000); //excute a new timeout!
 };
+const handleKeyDown = (event) => {
+  if (event.key === "m") {
+    handleMute();
+  } else if (event.key === "f") {
+    handleFullScreenClick();
+  } else if (event.key === " ") {
+    event.preventDefault();
+    handlePlayClick();
+  }
+};
+const handleEnded = (event) => {
+  const { id } = videoContainer.dataset;
+  fetch(`/api/videos/${id}/view`, {
+    method: "POST",
+  }); // We don't know the video's id! So we have to save video id into a HTML element by using data attributes!
+};
+const handleVideoClick = (event) => {
+  handlePlayClick();
+};
 
+//window.addEventListener("keydown", handleKeyDown);
 playBtn.addEventListener("click", handlePlayClick);
 muteBtn.addEventListener("click", handleMute);
 volumeRange.addEventListener("input", handleVolumeInput);
+video.addEventListener("click", handleVideoClick);
 video.addEventListener("loadedmetadata", handleLoadedMetaData); //미디어의 메타 데이터가 로드되었을 때를 나타낸다.메타 데이터는 우리가 유용하게 사용할 수 있는 동영상의 재생시간과 같은 것을 의미한다
 video.addEventListener("timeupdate", handleTimeUpdate); //오디오 / 비디오의 재생 위치가 변경 될 때 timeupdate 이벤트가 발생합니다.
-timeline.addEventListener("input", handleTimelineInput);
+video.addEventListener("ended", handleEnded);
+timeline.addEventListener("input", handleTimelineInput); //timeline으로 비디오 조작
 fullScreenBtn.addEventListener("click", handleFullScreenClick);
 /**Video안에서의 마우스 */
 video.addEventListener("mouseenter", handleMouseEnter);
-video.addEventListener("mouseleave", handleMouseLeave);
-video.addEventListener("mousemove", handleMouseMove);
+videoContainer.addEventListener("mouseleave", handleMouseLeave);
+videoContainer.addEventListener("mousemove", handleMouseMove);

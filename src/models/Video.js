@@ -11,13 +11,12 @@ const videoSchema = new mongoose.Schema({
   description: { type: String, required: true, trim: true },
   createdAt: { type: Date, required: true, default: Date.now }, //default value + Date.now -> because i want to excute the function when we create documents
   hashtags: [{ type: String, trim: true }],
-  videoUrl: { type: String, required: true },
+  videoFileUrl: { type: String, required: true },
+  thumbnailUrl: { type: String, required: true },
   meta: {
     views: { type: Number, default: 0, required: true },
   },
-  comments: [
-    { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Comment" },
-  ],
+  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,

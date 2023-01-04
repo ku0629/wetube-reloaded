@@ -1,5 +1,7 @@
 import Video from "../models/Video";
 import User from "../models/User";
+import Comment from "../models/Comment";
+import { async } from "regenerator-runtime";
 
 // if (error) {
 //   return res.render("server-error", { error });
@@ -13,7 +15,9 @@ import User from "../models/User";
 
 export const homeRecommend = async (req, res) => {
   try {
-    const videos = await Video.find({}).sort({ createdAt: "desc" });
+    const videos = await Video.find({})
+      .sort({ createdAt: "desc" })
+      .populate("owner");
     return res.render("home", {
       pageTitle: "Welcome",
       videos, //send array with objects
@@ -25,7 +29,12 @@ export const homeRecommend = async (req, res) => {
 };
 export const watch = async (req, res) => {
   const { id } = req.params;
-  const video = await Video.findById(id).populate("owner"); //const videoOwner = await User.findById(video.owner);
+  const video = await Video.findById(id)
+    .populate({
+      path: "owner",
+      populate: { path: "comments", model: "Comment" },
+    })
+    .populate("comments"); //const videoOwner = await User.findById(video.owner);
   //video가 없을경우를 예방 check error first!
   if (video === null) {
     return res.status(404).render("404", { pageTitle: "Video not found" });
@@ -47,6 +56,7 @@ export const getEdit = async (req, res) => {
     return res.status(404).render("404", { pageTitle: "Video not found" });
   }
   if (String(video.owner) !== _id) {
+    req.flash("error", "You are not the owner of the video!"); // req.flash(type, message);
     return res.status(403).redirect("/"); //status 403 - forbiddem
   }
   return res.render("edit", {
@@ -88,10 +98,13 @@ export const postUpload = async (req, res) => {
     user: { _id },
   } = req.session;
   const { title, description, hashtags } = req.body;
-  const video = req.file;
+  const video = req.files.video[0];
+  const thumbnail = req.files.thumbnail[0];
+  console.log(thumbnail);
   try {
     const newVideo = await Video.create({
-      videoUrl: video.path,
+      videoFileUrl: video.path,
+      thumbnailUrl: thumbnail.path,
       title,
       description,
       hashtags: Video.formatHashtags(hashtags),
@@ -133,10 +146,42 @@ export const search = async (req, res) => {
       title: {
         $regex: new RegExp(`${keyword}`, "i"),
       },
-    });
+    }).populate("owner");
   }
   return res.render("search", {
     pageTitle: "Search",
     videos,
   });
+};
+
+export const registerView = async (req, res) => {
+  const { id } = req.params;
+  const video = await Video.findById(id);
+  if (!video) {
+    return res.sendStatus(404); //Send status code and finish!
+  }
+  video.meta.views = video.meta.views + 1;
+  await video.save();
+  return res.sendStatus(200);
+};
+
+export const createComment = async (req, res) => {
+  const {
+    session: { user },
+    body: { text },
+    params: { id },
+  } = req;
+  const video = await Video.findById(id);
+  const dbUser = await User.findById(user._id);
+  if (!video) {
+    return res.sendStatus(404);
+  }
+  const comment = await Comment.create({
+    text: text,
+    owner: user._id,
+    video: id,
+  });
+  video.comments.push(comment._id);
+  video.save();
+  return res.status(201).json({ newCommentId: comment._id }); // send a response message to the frontend
 };

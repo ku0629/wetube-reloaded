@@ -1,24 +1,32 @@
 header
-    a(href="/")
-        i.fab.fa-youtube.fa-xl
+    div.homeButton
+        a(href="/").header__logo
+            i.fab.fa-youtube.fa-xl
+            span Premium
+            span.country kr
     nav 
         ul
             li
-                a(href="/search") Search
+                a(href="/search")
+                    i.fas.fa-search
             if loggedIn 
                 li
                     a(href="/videos/upload") Upload
                 li 
-                    a(href=`/users/${loggedInUser._id}`) #{loggedInUser.name}'s profile
-                li 
                     a(href="/users/edit") Edit-Profile
                 li 
                     a(href="/users/logout") Logout 
+                li 
+                    a(href=`/users/${loggedInUser._id}`)
+                        if loggedInUser.avatarUrl===""
+                            span 😢No avatar
+                        else 
+                            img(src=loggedInUser.avatarUrl,crossorigin).header__avatar
             else
                 li 
                     a(href="/join") Join
                 li 
-                    a(href="/login") Login
+                    a(href="/login").header__btn     Login
                 
                 //- title변수의 값을 가지는 h1 
         

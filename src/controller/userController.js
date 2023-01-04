@@ -200,12 +200,16 @@ export const finishGithubLogin = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  req.session.destroy();
+  req.session.user = null;
+  res.locals.loggedInUser = req.session.user;
+  req.session.loggedIn = false;
+  req.flash("info", "Bye Bye"); // req.flash(type, message);
   return res.redirect("/");
 };
 
 export const getChangePassword = (req, res) => {
   if (req.session.user.socialOnly === true) {
+    req.flash("error", "Can't change password!"); // req.flash(type, message);
     return res.redirect("/");
   }
   return res.render("change-password", { pageTitle: "Change Password" });
@@ -235,12 +239,21 @@ export const postChangePassword = async (req, res) => {
   user.password = newPassword;
   await user.save();
   //send notification
-  return res.redirect("/users/logout");
+  req.flash("info", "Password updated"); // req.flash(type, message);
+  return res.redirect("/users/edit");
 };
 
 export const myProfile = async (req, res) => {
   const { id } = req.params;
-  const user = await User.findById(id).populate("videos");
+  const user = await User.findById(id).populate({
+    //double populate
+    path: "videos", //first populate
+    populate: {
+      //second populate
+      path: "owner", //video's owner!
+      model: "User",
+    },
+  });
   if (!user) {
     return res.status(404).render("404", { pageTitle: "User not found" });
   }

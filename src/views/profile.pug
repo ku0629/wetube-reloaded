@@ -1,8 +1,17 @@
 extends base
 include mixins/video.pug
 
-block content 
-    each potato in user.videos
-        +video(potato)
-    else 
-        li Thers is no video  
+block content
+    div.profile
+        div.profile__data
+            img(src=user.avatarUrl).avatar
+            h3=user.name
+            h3.profile__data--username=user.username
+            div.auth-switch.auth-switch--profile
+                a(href="/users/edit") Edit Profile &rarr;
+        div.profile__video-grid
+            each potato in user.videos
+                +video(potato)
+            else 
+                span.empty__message No videos found
+                

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { compileClientWithDependenciesTracked } from "pug";
 
+mongoose.set("strictQuery", false);
 mongoose.connect(process.env.DB_URL);
 const db = mongoose.connection;
 

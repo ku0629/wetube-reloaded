@@ -1,37 +1,56 @@
 extends base.pug
 
 block content
-    div#videoContainer
-        video(src="/"+video.videoUrl width="500px") 
+    div#videoContainer(data-id=video._id)
+        video(src="/"+video.videoFileUrl width="500px") 
         div#videoControls
-            button#play Play 
-            button#mute Mute
-            input(type="range" step="0.1" value=0.5 min="0" max="1")#volume
-            div 
-                span#currentTime 00:00
-                span  / 
-                span#totalTime 00:00
-        div
-            input(type="range" step="1" value="0" min="0")#timeline
-        div 
-            button#fullScreen Enter Full Screen
-        div
-            h2=video.title
-            p=video.description
-            small=video.createdAt
-        div
-            small Uploaded by 
-                a(href=`/users/${video.owner._id}`) #{video.owner.name} 
-        if String(video.owner._id)===String(loggedInUser._id)
+            div.videoControls__timeline
+                input(type="range" step="1" value="0" min="0")#timeline
+            div.videoControls__etc
+                button#play 
+                    i.fa-solid.fa-play  
+                button#mute 
+                    i.fa-solid.fa-volume-high
+                input(type="range" step="0.1" value=0.5 min="0" max="1")#volume
+                div.videoControls__etc--time
+                    span#currentTime 00:00
+                    span  / 
+                    span#totalTime 00:00
+                div.videoControls__etc--fullScreen
+                    button#fullScreen 
+                        i.fa-solid.fa-expand
+    div.video-imformation
+        div.hashtags
+            each hashtag in video.hashtags
+                span=hashtag
+        h2=video.title
+        small Uploaded by 
+            a(href=`/users/${video.owner._id}`) #{video.owner.name} 
+        span in #{video.createdAt.getFullYear()}.#{video.createdAt.getMonth()+1}.#{video.createdAt.getDate()}.
+        h4 Views: #{video.meta.views}
+    if String(video.owner._id)===String(loggedInUser._id)
+        div.editor
             a(href=`${video.id}/edit`) Edit video &rarr;
-            br
+            br 
             a(href=`${video.id}/delete`) Delete video &rarr;
-        if loggedIn
-            div.video__comments
-                form.video__comment-form#commentForm
-                    textarea(cols="30",rows="10",placeholder="Write a nice comment...")
-                    button Add Comment
+    if loggedIn
+        div.video_add-comments
+            form.video__comment-form#commentForm
+                textarea(cols="30",rows="10",placeholder="Write a nice comment...")
+                button Add Comment
+    else 
+        div.login-warning
+            span You can write comments after &nbsp;
+                a(href="/login") login&rarr;
+    div.video__comments
+        ul 
+            each comment in video.comments.reverse()
+                li.video__comment(data-id=comment.id)
+                    i.fas.fa-comment
+                    span  #{comment.text}
+                    span  ❌
 block scripts 
     script(src="/static/js/videoPlayer.js")
-    script(src="/static/js/commentSection.js")
+    if loggedIn
+        script(src="/static/js/commentSection.js")
 
