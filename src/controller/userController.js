@@ -2,7 +2,7 @@ import { restart } from "nodemon";
 import User from "../models/User";
 import Video from "../models/Video";
 import fetch from "node-fetch";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import e from "express";
 
 export const getLogin = (req, res) => {

@@ -14,6 +14,7 @@ const fullScreenBtn = document.getElementById("fullScreen");
 const fullScreenBtnIcon = fullScreenBtn.querySelector("i");
 const videoContainer = document.getElementById("videoContainer");
 const videoControls = document.getElementById("videoControls");
+const textarea = document.querySelector(".video__comment-form textarea");
 
 /**Global variables */
 let volumeValue = 0.5;
@@ -136,8 +137,15 @@ const handleEnded = (event) => {
 const handleVideoClick = (event) => {
   handlePlayClick();
 };
-
-//window.addEventListener("keydown", handleKeyDown);
+const handleTextareaFocus = (event) => {
+  window.removeEventListener("keydown", handleKeyDown);
+};
+const handleTextareaFocusOut = (event) => {
+  window.addEventListener("keydown", handleKeyDown);
+};
+window.addEventListener("keydown", handleKeyDown);
+textarea.addEventListener("focus", handleTextareaFocus);
+textarea.addEventListener("focusout", handleTextareaFocusOut);
 playBtn.addEventListener("click", handlePlayClick);
 muteBtn.addEventListener("click", handleMute);
 volumeRange.addEventListener("input", handleVolumeInput);

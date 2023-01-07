@@ -14,8 +14,6 @@ module.exports = {
     recorder: BASE_JS + "recorder.js",
     commentSection: BASE_JS + "commentSection.js",
   }, //우리가 처리하고자 하는 Sexy JS파일 , 이 프로퍼티에 우리가 처리하고자 하는 파일의 경로 입력
-  mode: "development", //개발중인 단계이다. <-> production 개발완료!
-  watch: true, //nodemon처럼 client폴더안의 파일이 수정되면 자동으로 assets폴더안의 파일들을 수정해준다. 그래서 터미널을 백엔드, 프론트엔드로 구분해서 사용해야된다.
   plugins: [
     new MiniCssExtractPlugin({
       filename: "css/styles.css",
@@ -35,6 +33,7 @@ module.exports = {
           loader: "babel-loader",
           options: {
             presets: [["@babel/preset-env", { targets: "defaults" }]],
+            compact: false,
           },
         },
       },

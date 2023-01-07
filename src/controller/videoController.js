@@ -2,6 +2,7 @@ import Video from "../models/Video";
 import User from "../models/User";
 import Comment from "../models/Comment";
 import { async } from "regenerator-runtime";
+import { restart } from "nodemon";
 
 // if (error) {
 //   return res.render("server-error", { error });
@@ -183,5 +184,20 @@ export const createComment = async (req, res) => {
   });
   video.comments.push(comment._id);
   video.save();
-  return res.status(201).json({ newCommentId: comment._id }); // send a response message to the frontend
+  return res.status(201).json({ newCommentId: comment._id });
+};
+
+export const deleteComment = async (req, res) => {
+  const {
+    session: { user },
+    params: { commentId, videoId },
+  } = req;
+  const deleteComment = await Comment.findById(commentId).populate("owner");
+  const video = await Video.findById(videoId);
+  if (String(deleteComment.owner._id) === String(user._id)) {
+    await Comment.findByIdAndDelete(commentId);
+    video.comments.splice(video.comments.indexOf(commentId), 1);
+    video.save();
+  } else return res.sendStatus(403);
+  return res.sendStatus(204);
 };

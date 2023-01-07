@@ -61,3 +61,21 @@
     }
   }
 }
+.video_add-comments {
+  width: 400px;
+  margin: 20px auto;
+  .video__comment-form {
+    position: relative;
+    textarea {
+      height: 100px;
+      align-items: center;
+    }
+    button {
+      border-radius: 40%;
+      position: absolute;
+      top: 60px;
+      right: 30px;
+      font-size: 30px;
+    }
+  }
+}
